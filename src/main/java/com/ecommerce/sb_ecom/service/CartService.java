@@ -11,4 +11,6 @@ public interface CartService {
   CartDto getCart(String emailId, Long cartId);
 
   CartDto updateProductQuantity(Long productId, Integer quantity);
+
+  String deleteProductFromCart(Long cartId, Long productId);
 }

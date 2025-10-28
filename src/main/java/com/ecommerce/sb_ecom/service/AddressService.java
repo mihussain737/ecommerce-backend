@@ -10,4 +10,6 @@ public interface AddressService {
     public AddressDto createAddress(AddressDto addressDto, User user);
 
     List<AddressDto> getAllAddresses();
+
+    AddressDto getAddressById(Long addressId);
 }

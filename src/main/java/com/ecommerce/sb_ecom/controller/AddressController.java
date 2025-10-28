@@ -48,4 +48,16 @@ public class AddressController {
         List<AddressDto> addressDtoList=addressService.getUserAddresses(user);
         return new ResponseEntity<>(addressDtoList,HttpStatus.OK);
     }
+
+    @PutMapping("/addresses/{addressId}")
+    public ResponseEntity<AddressDto> updateAddressById(@PathVariable Long addressId,@Valid @RequestBody AddressDto addressDto){
+        AddressDto address=addressService.updateAddress(addressId,addressDto);
+        return new ResponseEntity<>(address,HttpStatus.OK);
+    }
+
+    @DeleteMapping("/addresses/{addressId}")
+    public ResponseEntity<String> deleteAddressById(@PathVariable Long addressId){
+        String status=addressService.deleteAddressById(addressId);
+        return new ResponseEntity<>("Address is deleted with id: "+addressId,HttpStatus.OK);
+    }
 }

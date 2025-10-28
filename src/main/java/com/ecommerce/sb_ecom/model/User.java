@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Getter@Setter@NoArgsConstructor@AllArgsConstructor @ToString
@@ -53,13 +54,18 @@ public class User {
 
     @Getter
     @Setter
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(name = "user_address",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "address_id"))
-    private Set<Address> addresses;
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE},orphanRemoval = true)
+//    @JoinTable(name = "user_address",
+//            joinColumns = @JoinColumn(name = "user_id"),
+//            inverseJoinColumns = @JoinColumn(name = "address_id"))
+    private List<Address> addresses;
 
     @ToString.Exclude
     @OneToOne(mappedBy = "user", cascade = {CascadeType.PERSIST,CascadeType.MERGE})
     private Cart cart;
+
+    @Override
+    public String toString() {
+        return "User{id=" + userId + ", name='" + username + "'}";
+    }
 }

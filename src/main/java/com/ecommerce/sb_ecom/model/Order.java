@@ -26,7 +26,7 @@ public class Order {
 
     @ManyToOne
     @JoinColumn(name = "address_id")
-    private String address;
+    private Address address;
     private String orderStatus;
 
     @OneToOne

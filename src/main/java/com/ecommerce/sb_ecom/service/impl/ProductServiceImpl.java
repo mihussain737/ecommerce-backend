@@ -52,6 +52,9 @@ public class ProductServiceImpl implements ProductService {
     @Value("${project.image}")
     private String path;
 
+    @Value("${image.base.url}")
+    private String imageBaseUrl;
+
     @Override
     public ProductDto saveProduct(Long categoryId,ProductDto productDto) {
         Category category = categoryRepository.findById(categoryId).orElseThrow(() ->
@@ -98,7 +101,11 @@ public class ProductServiceImpl implements ProductService {
         List<Product> products=pageProducts.getContent();
 
         List<ProductDto> productDtos=products.stream()
-                .map(i->modelMapper.map(i,ProductDto.class))
+                .map(product->{
+                    ProductDto productDto =modelMapper.map(product,ProductDto.class);
+                    productDto.setImage(constructImageUrl(product.getImage()));
+                    return productDto;
+                        })
                 .toList();
 
         if(products.isEmpty()){
@@ -112,6 +119,11 @@ public class ProductServiceImpl implements ProductService {
         productResponse.setTotalElements(pageProducts.getTotalElements());
         productResponse.setLastPage(pageProducts.isLast());
         return productResponse;
+    }
+
+
+    private String constructImageUrl(String imageName){
+        return imageBaseUrl.endsWith("/") ? imageBaseUrl + imageName : imageBaseUrl + "/" + imageName;
     }
 
     @Override

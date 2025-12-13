@@ -134,7 +134,7 @@ public class AuthController {
         UserDetailsImpl userDetails= (UserDetailsImpl) authentication.getPrincipal();
         List<String> roles=userDetails.getAuthorities().stream()
                 .map(item->item.getAuthority()).toList();
-        UserInfoResponse userInfoResponse=new UserInfoResponse(userDetails.getId(),userDetails.getUsername(),roles);
+        UserInfoResponse userInfoResponse=new UserInfoResponse((Long) userDetails.getId(),userDetails.getUsername(),roles);
         return ResponseEntity.ok().body(userInfoResponse);
     }
 

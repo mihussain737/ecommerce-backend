@@ -63,11 +63,16 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         UserDetailsImpl userDetails=(UserDetailsImpl) authentication.getPrincipal();
 //        String jwtToken=jwtUtils.generateTokenFromUsername(userDetails);
+
         ResponseCookie jwtCookie=jwtUtils.generateJwtCookie(userDetails);
+
         List<String> roles=userDetails.getAuthorities().stream()
                 .map(item->item.getAuthority()).toList();
-        UserInfoResponse loginResponse=new UserInfoResponse(userDetails.getId(),jwtCookie.getValue(),userDetails.getUsername(),roles);
+
+        UserInfoResponse loginResponse=new UserInfoResponse(userDetails.getId(),jwtCookie.toString(),userDetails.getUsername(),roles
+                );
 //        return new ResponseEntity<>(loginResponse, HttpStatus.OK);
+
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE,
                 jwtCookie.toString()).body(loginResponse);
     }

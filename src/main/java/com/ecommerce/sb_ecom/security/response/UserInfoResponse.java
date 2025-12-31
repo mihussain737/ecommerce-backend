@@ -7,6 +7,8 @@ import java.util.List;
 
 public class UserInfoResponse {
 
+    @Getter
+    @Setter
     private Long id;
     @Getter
     @Setter

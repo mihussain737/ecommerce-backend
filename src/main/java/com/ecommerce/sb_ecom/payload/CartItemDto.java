@@ -5,10 +5,11 @@ import lombok.*;
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class CartItemDto {
 
-    private Long cartItemId;
-    private CartDto cart;
-    private ProductDto product;
+    private Long productId;
     private Integer quantity;
-    private Double discount;
-    private Double productPrice;
+//    private CartDto cart;
+//    private ProductDto product;
+//    private Integer quantity;
+//    private Double discount;
+//    private Double productPrice;
 }

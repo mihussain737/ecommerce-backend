@@ -1,6 +1,7 @@
 package com.ecommerce.sb_ecom.service;
 
 import com.ecommerce.sb_ecom.payload.CartDto;
+import com.ecommerce.sb_ecom.payload.CartItemDto;
 
 import java.util.List;
 
@@ -15,4 +16,6 @@ public interface CartService {
   String deleteProductFromCart(Long cartId, Long productId);
 
     void updateProductCarts(Long cartId, Long productId);
+
+  String createOrUpdateCartWithItems(List<CartItemDto> cartItemDtos);
 }

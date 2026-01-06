@@ -223,6 +223,7 @@ public class CartServiceImpl implements CartService {
         cartItemRepository.save(cartItem);
     }
 
+    @Transactional
     @Override
     public String createOrUpdateCartWithItems(List<CartItemDto> cartItemDtos) {
         String emailId= authUtil.loggedInEmail();

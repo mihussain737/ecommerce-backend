@@ -17,14 +17,17 @@ public class UserInfoResponse {
     @Getter
     private String username;
     private List<String> roles;
+    @Getter @Setter
+    private String email;
 
     public UserInfoResponse() {
     }
 
-    public UserInfoResponse(Long id, String jwtToken,String username, List<String> roles) {
+    public UserInfoResponse(Long id,String username, List<String> roles ,String email , String jwtToken) {
         this.id=id;
         this.username = username;
         this.roles = roles;
+        this.email=email;
         this.jwtToken=jwtToken;
     }
 

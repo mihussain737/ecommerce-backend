@@ -1,5 +1,6 @@
 package com.ecommerce.sb_ecom.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -8,6 +9,8 @@ import lombok.*;
 @Entity
 @Table(name = "payments")
 @Data @AllArgsConstructor @NoArgsConstructor
+@ToString(exclude = "order")
+@EqualsAndHashCode(exclude = "order")
 public class Payment {
 
     @Id
@@ -15,6 +18,7 @@ public class Payment {
     private Long paymentId;
 
     @OneToOne(mappedBy = "payment",cascade = {CascadeType.PERSIST,CascadeType.MERGE})
+    @JsonIgnore
     private Order order;
 
     @NotBlank

@@ -1,8 +1,10 @@
 package com.ecommerce.sb_ecom.controller;
 
+import com.ecommerce.sb_ecom.config.AppConstants;
 import com.ecommerce.sb_ecom.model.Order;
 import com.ecommerce.sb_ecom.payload.OrderDto;
 import com.ecommerce.sb_ecom.payload.OrderRequestDto;
+import com.ecommerce.sb_ecom.payload.OrderResponse;
 import com.ecommerce.sb_ecom.payload.StripePaymentDto;
 import com.ecommerce.sb_ecom.service.OrderService;
 import com.ecommerce.sb_ecom.service.StripeService;
@@ -47,5 +49,16 @@ public class OrderController {
     public ResponseEntity<String> createStripeClientSecret(@RequestBody StripePaymentDto stripePaymentDto) throws StripeException {
         PaymentIntent paymentIntent= stripeService.paymentIntent(stripePaymentDto);
         return new ResponseEntity<>(paymentIntent.getClientSecret(),HttpStatus.CREATED);
+    }
+
+    @GetMapping("/admin/orders")
+    public ResponseEntity<OrderResponse> getAllOrders(
+            @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
+            @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
+            @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_ORDERS_BY, required = false) String sortBy,
+            @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIR, required = false) String sortOrder
+    ){
+        OrderResponse orderResponse=orderService.getAllOrders(pageNumber,pageSize,sortBy,sortOrder);
+        return new ResponseEntity<>(orderResponse,HttpStatus.OK);
     }
 }

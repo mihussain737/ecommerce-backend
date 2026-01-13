@@ -13,7 +13,7 @@ public class OrderDto {
     private Long orderId;
     private String email;
     List<OrderItemDto> orderItems;
-    private LocalDate localDate;
+    private LocalDate orderDto;
     private PaymentDto payment;
     private Double totalAmount;
     private String orderStatus;

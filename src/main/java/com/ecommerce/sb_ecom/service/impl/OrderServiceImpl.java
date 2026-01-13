@@ -5,12 +5,17 @@ import com.ecommerce.sb_ecom.exception.ResourceNotFoundException;
 import com.ecommerce.sb_ecom.model.*;
 import com.ecommerce.sb_ecom.payload.OrderDto;
 import com.ecommerce.sb_ecom.payload.OrderItemDto;
+import com.ecommerce.sb_ecom.payload.OrderResponse;
 import com.ecommerce.sb_ecom.repository.*;
 import com.ecommerce.sb_ecom.service.CartService;
 import com.ecommerce.sb_ecom.service.OrderService;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -101,5 +106,24 @@ public class OrderServiceImpl implements OrderService {
         });
         orderDto.setAddressId(addressId);
         return orderDto;
+    }
+
+    @Override
+    public OrderResponse getAllOrders(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+        Sort sortByAndOrder=sortOrder.equalsIgnoreCase("asc")?
+                Sort.by(sortBy).ascending():Sort.by(sortBy).descending();
+
+        Pageable pageDetails= PageRequest.of(pageNumber,pageSize,sortByAndOrder);
+        Page<Order> pageOrders = orderRepository.findAll(pageDetails);
+        List<Order> orders=pageOrders.getContent();
+
+        OrderResponse orderResponse=new OrderResponse();
+        orderResponse.setContent(orders.stream().map(order -> modelMapper.map(order,OrderDto.class)).toList());
+        orderResponse.setPageNumber(pageOrders.getNumber());
+        orderResponse.setPageSize(pageOrders.getSize());
+        orderResponse.setTotalElements(pageOrders.getTotalElements());
+        orderResponse.setTotalPages(pageOrders.getTotalPages());
+        orderResponse.setLastPage(pageOrders.isLast());
+        return orderResponse;
     }
 }

@@ -2,10 +2,8 @@ package com.ecommerce.sb_ecom.controller;
 
 import com.ecommerce.sb_ecom.config.AppConstants;
 import com.ecommerce.sb_ecom.model.Order;
-import com.ecommerce.sb_ecom.payload.OrderDto;
-import com.ecommerce.sb_ecom.payload.OrderRequestDto;
-import com.ecommerce.sb_ecom.payload.OrderResponse;
-import com.ecommerce.sb_ecom.payload.StripePaymentDto;
+import com.ecommerce.sb_ecom.payload.*;
+import com.ecommerce.sb_ecom.security.services.UserDetailsImpl;
 import com.ecommerce.sb_ecom.service.OrderService;
 import com.ecommerce.sb_ecom.service.StripeService;
 import com.ecommerce.sb_ecom.util.AuthUtil;
@@ -15,6 +13,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -60,5 +59,12 @@ public class OrderController {
     ){
         OrderResponse orderResponse=orderService.getAllOrders(pageNumber,pageSize,sortBy,sortOrder);
         return new ResponseEntity<>(orderResponse,HttpStatus.OK);
+    }
+
+    @PutMapping("/admin/orders/{orderId}/status")
+    public ResponseEntity<OrderDto> updateOrderStatus(@PathVariable Long orderId,
+                                                      @RequestBody OrderStatusUpdateDto orderStatusUpdateDto){
+        OrderDto orderDto=orderService.updateOrder(orderId,orderStatusUpdateDto.getStatus());
+        return new ResponseEntity<>(orderDto,HttpStatus.OK);
     }
 }

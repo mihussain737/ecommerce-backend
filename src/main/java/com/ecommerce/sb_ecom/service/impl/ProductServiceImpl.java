@@ -240,4 +240,37 @@ public class ProductServiceImpl implements ProductService {
         Product product=productRepository.save(productFromDb);
         return modelMapper.map(product,ProductDto.class);
     }
+
+    @Override
+    public ProductResponse getAllProductsForAdmin(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+        Sort sortByAndOrder=sortOrder.equalsIgnoreCase("asc")?
+                Sort.by(sortBy).ascending():
+                Sort.by(sortBy).descending();
+
+        Pageable pageDetails= PageRequest.of(pageNumber,pageSize,sortByAndOrder);
+
+
+        Page<Product> pageProducts=productRepository.findAll(pageDetails);
+        List<Product> products=pageProducts.getContent();
+
+        List<ProductDto> productDtos=products.stream()
+                .map(product->{
+                    ProductDto productDto =modelMapper.map(product,ProductDto.class);
+                    productDto.setImage(constructImageUrl(product.getImage()));
+                    return productDto;
+                })
+                .toList();
+
+        if(products.isEmpty()){
+            throw new APIException("No Product Exists");
+        }
+        ProductResponse productResponse=new ProductResponse();
+        productResponse.setContent(productDtos);
+        productResponse.setPageNumber(pageProducts.getNumber());
+        productResponse.setPageSize(pageProducts.getSize());
+        productResponse.setTotalPages(pageProducts.getTotalPages());
+        productResponse.setTotalElements(pageProducts.getTotalElements());
+        productResponse.setLastPage(pageProducts.isLast());
+        return productResponse;
+    }
 }

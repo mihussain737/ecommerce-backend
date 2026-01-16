@@ -5,6 +5,7 @@ import com.ecommerce.sb_ecom.model.CartItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -20,4 +21,8 @@ public interface CartItemRepository extends JpaRepository<CartItem,Long> {
     @Modifying
     @Query("DELETE FROM CartItem ci WHERE ci.cart.id=?1")
     void deleteAllByCartId(Long cartId);
+
+    @Modifying
+    @Query("DELETE FROM CartItem ci WHERE ci.product.productId = :productId")
+    void deleteByProductId(@Param("productId") Long productId);
 }

@@ -8,12 +8,12 @@ import com.ecommerce.sb_ecom.model.Product;
 import com.ecommerce.sb_ecom.payload.CartDto;
 import com.ecommerce.sb_ecom.payload.ProductDto;
 import com.ecommerce.sb_ecom.payload.ProductResponse;
-import com.ecommerce.sb_ecom.repository.CartRepository;
-import com.ecommerce.sb_ecom.repository.CategoryRepository;
-import com.ecommerce.sb_ecom.repository.ProductRepository;
+import com.ecommerce.sb_ecom.repository.*;
 import com.ecommerce.sb_ecom.service.CartService;
 import com.ecommerce.sb_ecom.service.FileService;
 import com.ecommerce.sb_ecom.service.ProductService;
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -48,6 +48,9 @@ public class ProductServiceImpl implements ProductService {
     private CartRepository cartRepository;
 
     @Autowired
+    private CartItemRepository cartItemRepository;
+
+    @Autowired
     private CartService cartService;
 
     @Value("${project.image}")
@@ -55,6 +58,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Value("${image.base.url}")
     private String imageBaseUrl;
+
+    @Autowired
+    private EntityManager entityManager;
 
     @Override
     public ProductDto saveProduct(Long categoryId,ProductDto productDto) {
@@ -217,28 +223,61 @@ public class ProductServiceImpl implements ProductService {
         return modelMapper.map(updatedProduct,ProductDto.class);
     }
 
+//    @Override
+//    public ProductDto deleteProductById(Long productId) {
+//        Product product = productRepository.findById(productId).orElseThrow(() ->
+//                new ResourceNotFoundException("Product", "ProductId", productId));
+//
+//        List<Cart> carts=cartRepository.findCartsByProductId(productId);
+//        carts.forEach(cart-> cartService.deleteProductFromCart(cart.getCartId(),productId));
+//        cartRepository.flush();
+//        productRepository.deleteById(productId);
+//        return modelMapper.map(product,ProductDto.class);
+//    }
+
+    @Transactional
     @Override
     public ProductDto deleteProductById(Long productId) {
-        Product product = productRepository.findById(productId).orElseThrow(() ->
-                new ResourceNotFoundException("Product", "ProductId", productId));
 
-        List<Cart> carts=cartRepository.findCartsByProductId(productId);
-        carts.forEach(cart-> cartService.deleteProductFromCart(cart.getCartId(),productId));
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Product", "ProductId", productId));
 
-        productRepository.deleteById(productId);
-        return modelMapper.map(product,ProductDto.class);
+        // 1. Delete all cart items of this product (DB level)
+        cartItemRepository.deleteByProductId(productId);
+
+        // 2. Flush to execute SQL delete
+        entityManager.flush();
+
+        // 3. Now delete product
+        productRepository.delete(product);
+
+        return modelMapper.map(product, ProductDto.class);
     }
 
+
     // handle images
+//    @Override
+//    public ProductDto updateProductImage(Long productId, MultipartFile image) throws IOException {
+//        Product productFromDb = productRepository.findById(productId).orElseThrow(() ->
+//                new ResourceNotFoundException("Product", "ProductId", productId));
+//        // upload image to server for prod but in local upload in the uploads folder
+//        String fileName= fileService.uploadImage(path,image);
+//        productFromDb.setImage(fileName);
+//        Product product=productRepository.save(productFromDb);
+//        return modelMapper.map(product,ProductDto.class);
+//    }
+
     @Override
     public ProductDto updateProductImage(Long productId, MultipartFile image) throws IOException {
-        Product productFromDb = productRepository.findById(productId).orElseThrow(() ->
-                new ResourceNotFoundException("Product", "ProductId", productId));
-        // upload image to server for prod but in local upload in the uploads folder
-        String fileName= fileService.uploadImage(path,image);
+        Product productFromDb = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product", "productId", productId));
+
+        String fileName = fileService.uploadImage(path, image);
         productFromDb.setImage(fileName);
-        Product product=productRepository.save(productFromDb);
-        return modelMapper.map(product,ProductDto.class);
+
+        Product updatedProduct = productRepository.save(productFromDb);
+        return modelMapper.map(updatedProduct, ProductDto.class);
     }
 
     @Override

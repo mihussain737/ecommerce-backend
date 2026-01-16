@@ -186,20 +186,56 @@ public class CartServiceImpl implements CartService {
         return cartDto;
     }
 
+//    @Transactional
+//    @Override
+//    public String deleteProductFromCart(Long cartId, Long productId) {
+//        Cart cart=cartRepository.findById(cartId).orElseThrow(()->
+//                new ResourceNotFoundException("cart","cartId",cartId));
+//        CartItem cartItem=cartItemRepository.findCartItemByProductIdAndCartId(cartId,productId);
+//
+//        if(cartItem==null){
+//            throw new ResourceNotFoundException("Product","productId",productId);
+//        }
+//        cart.setTotalPrice(cart.getTotalPrice()-cartItem.getProductPrice()*cartItem.getQuantity());
+//        cartItemRepository.deleteCartItemByProductIdAndCartId(cartId,productId);
+//        return "Product "+cartItem.getProduct().getProductName()+" removed from the cart!!";
+//    }
+
     @Transactional
     @Override
     public String deleteProductFromCart(Long cartId, Long productId) {
-        Cart cart=cartRepository.findById(cartId).orElseThrow(()->
-                new ResourceNotFoundException("cart","cartId",cartId));
-        CartItem cartItem=cartItemRepository.findCartItemByProductIdAndCartId(cartId,productId);
 
-        if(cartItem==null){
-            throw new ResourceNotFoundException("Product","productId",productId);
+        Cart cart = cartRepository.findById(cartId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("cart", "cartId", cartId));
+
+        CartItem cartItem = cartItemRepository
+                .findCartItemByProductIdAndCartId(cartId, productId);
+
+        if (cartItem == null) {
+            throw new ResourceNotFoundException("Product", "productId", productId);
         }
-        cart.setTotalPrice(cart.getTotalPrice()-cartItem.getProductPrice()*cartItem.getQuantity());
-        cartItemRepository.deleteCartItemByProductIdAndCartId(cartId,productId);
-        return "Product "+cartItem.getProduct().getProductName()+" removed from the cart!!";
+
+        // Update cart total
+        cart.setTotalPrice(
+                cart.getTotalPrice() - (cartItem.getProductPrice() * cartItem.getQuantity())
+        );
+
+        // Break JPA relationships
+        cartItem.setCart(null);
+        cartItem.setProduct(null);
+
+        // If Cart has collection mapping
+        if (cart.getCartItems() != null) {
+            cart.getCartItems().remove(cartItem);
+        }
+
+        // Delete managed entity (not bulk query)
+        cartItemRepository.delete(cartItem);
+
+        return "Product removed from the cart!!";
     }
+
 
     @Override
     public void updateProductCarts(Long cartId, Long productId) {
